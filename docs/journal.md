@@ -56,8 +56,24 @@
 
 ### Controller + mods (steps 4-5)
 
-- [ ] daemon run config saved
-- [ ] Service census on the TV (names will differ from Q70T's)
-- [ ] Debloat masks re-applied by daemon; RAM before/after measured
-- [ ] Remote Home-key observation → suppress rule
-- [ ] `app.launch` action extension → Home opens Free My TV
+- [x] Service census on the TV (145 running services) — see
+      `evidence/2026-10-24-census.md`. Memory baseline: 1816840 kB total,
+      ~42 MB free, swap 91% used.
+- [x] Debloat applied via volatile `systemctl mask --runtime --now` (lives in
+      `/run/systemd/system/`, zero persistent changes, all reversible by TV
+      reboot). User-selected groups: ads/telemetry/ACR, auto-update, voice AI.
+      24 services masked: adagent, contents-recognition, contents-cognition-mgr,
+      contents-ui-detector, screen-analysis-mgr, abnormal_user_behavior,
+      remotepc, slive-provider-daemon, reporterCA, scs-agent, pushd,
+      register-device, registertv, registerav, tagpro, mirroring-recognition-mgr,
+      aifw-msf, swu-auto-upgrade, muse-server, aitech_daemon, NPUManager,
+      ai-interpreter, context-aware-agent, context-aware-service.
+      Evidence: `evidence/2026-10-24-masks-applied.md`.
+- [x] RAM: available 208 MB → 375 MB (~167 MB freed) right after masking.
+- [~] Controller daemon: v0.0.12's `daemon run` only supports qn90b/qn90f
+      backends — NOT the archive route. Replacement: host-side watcher
+      (Windows Startup) that every ~6 min runs one idempotent root session
+      which re-applies masks if missing (a TV reboot clears /run masks).
+- [ ] Remote Home-key observation → suppress rule (needs daemon-compatible
+      remote grab; S90D route unsupported in stock daemon — investigate)
+- [ ] `app.launch` action extension → Home opens Free My TV (same dependency)
