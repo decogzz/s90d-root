@@ -79,8 +79,27 @@
 - [x] `remote devices s90d` works on the live lease. Bluetooth remote is
       kernel name `Smart Control` (`/dev/input/event3`). Free My TV app id
       is `FreeMyTVio.FreeMyTV`.
-- [~] Home-key remap: observe one Home press (`remote events s90d` after
-      enabling the Smart Control device), then add
-      `{ device = "Smart Control", key = "<observed>", action = "app.launch",
-      app = "FreeMyTVio.FreeMyTV" }` and restart the daemon. Not flipped on
-      yet — need the exact key name from one observed press.
+- [x] Home-key remap — DONE and verified end to end (2026-10-24):
+      - Twist: the BT remote's keys do NOT arrive on `Smart Control`
+        (`event3`) — that node stayed silent through every press. A raw
+        `dd` capture across candidate nodes (`event0/1/3/4/5`) showed Home
+        arriving on `wt61p807 rc device` (`/dev/input/event1`) as
+        `EV_KEY code 63` = `XF86Home` (confirmed against
+        `/usr/share/X11/xkb/tizen_key_layout.txt.tv`).
+      - Two bugs fixed along the way (`decogzz/samsung-tv-root`
+        `archive-daemon` commit `121bb20`): the archive root agent only
+        accepts WRITEFILE inside its per-session staging directory, so the
+        remote-input token write to the shared model directory killed the
+        root connection 20 ms after acquisition (looping retry-wait).
+        Fix: `RootAgentConnection.writable_directory` + token writes moved
+        there (remote + native events); qn90b/qn90f unaffected.
+      - Final config: device `wt61p807 rc device` (filter mode, uinput
+        forwarding) + rule
+        `{ device = "wt61p807 rc device", key = "XF86Home", action = "app.launch", app = "FreeMyTVio.FreeMyTV" }`.
+      - Verified: Home press → `decision: blocked`, action `app.launch`
+        `ok: yes` ("successfully launched pid = 13793"), TV fullscreen appid
+        flips `com.samsung.tv.csfs` → `FreeMyTVio.FreeMyTV`; all other keys
+        (Right/Down/Up/Back) forward natively. Remote behaves normally,
+        only Home is remapped.
+      - SSDP presence detection is flaky on this LAN; if the daemon sits in
+        `idle` after start, `daemon-cmd.bat root acquire s90d` forces it.
