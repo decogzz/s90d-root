@@ -74,6 +74,10 @@
       backends — NOT the archive route. Replacement: host-side watcher
       (Windows Startup) that every ~6 min runs one idempotent root session
       which re-applies masks if missing (a TV reboot clears /run masks).
-- [ ] Remote Home-key observation → suppress rule (needs daemon-compatible
-      remote grab; S90D route unsupported in stock daemon — investigate)
-- [ ] `app.launch` action extension → Home opens Free My TV (same dependency)
+- [~] Remote Home-key observation → suppress rule: **blocked on tooling**.
+      The remote devices/rules commands are daemon (controller) actions; the
+      v0.0.12 daemon's `root_backend()` supports only qn90b/qn90f. There is no
+      archive-route persistent agent (`serve` is QN90F-only). Doing this needs
+      source-level work: an ArchiveRootBackend for the daemon + a persistent
+      archive-agent mode. Deferred until the core mods have burned in.
+- [~] `app.launch` action extension → same dependency as above.

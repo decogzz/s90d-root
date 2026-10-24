@@ -14,6 +14,18 @@ Base tooling and reference:
 
 ## Status
 
+- **Rooted (volatile)** — stock `samsung-tv-root` v0.0.12 `archive-root` route
+  works on this S90D; uid 0 with full caps, verified 2026-10-24.
+- **Debloat applied** — 24 ads/telemetry/ACR/auto-update/voice services
+  runtime-masked in `/run`; RAM available ~208 MB → ~375 MB.
+- **Watcher installed** on the Windows host (Startup loop) re-applies masks
+  automatically after each TV reboot. The stock daemon doesn't support the
+  archive route, so the watcher drives one-shot root sessions instead.
+- **Home-key remap: not done** — the remote grab/rules feature requires the
+  host controller daemon, which in v0.0.12 only supports QN90B/QN90F backends.
+  Needs source-level adaptation (new archive-route daemon backend + persistent
+  agent). Deferred; `docs/journal.md` has details.
+
 See [docs/journal.md](docs/journal.md) for the running log and
 [docs/plan.md](docs/plan.md) for the confirmed plan.
 
