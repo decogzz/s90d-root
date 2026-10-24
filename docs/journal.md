@@ -43,16 +43,14 @@
     `C:\Program Files\Git\usr\bin\openssl.exe`; `run-probe.bat` on the Windows
     side prepends it.
 
-### Root (step 3) — proven by probe
+### Root (step 3) — proven by probe and by the daemon
 
 - [x] The probe performs the full archive-launcher root acquisition (bind-mount
       sdbd public.pem + passwd view, tarlauncher --to-command as uid 0) and
       cleans up. Evidence captured above.
-
-### Root (step 3)
-
-- [ ] probe passes runtime/capability checks, or adapt (capscan + couchroot S90D record)
-- [ ] `archive-root root <tv> --command 'id'` → `uid=0`
+- [x] Host controller daemon (`model = "archive"`) acquired a live session:
+      `uid=0 euid=0 gid=0 egid=0 cap_eff=0000003fffffffff smack=User`
+      (pid 25404, 2026-10-24 15:11). `execute s90d id` works over that lease.
 
 ### Controller + mods (steps 4-5)
 
@@ -70,14 +68,19 @@
       ai-interpreter, context-aware-agent, context-aware-service.
       Evidence: `evidence/2026-10-24-masks-applied.md`.
 - [x] RAM: available 208 MB → 375 MB (~167 MB freed) right after masking.
-- [~] Controller daemon: v0.0.12's `daemon run` only supports qn90b/qn90f
-      backends — NOT the archive route. Replacement: host-side watcher
-      (Windows Startup) that every ~6 min runs one idempotent root session
-      which re-applies masks if missing (a TV reboot clears /run masks).
-- [~] Remote Home-key observation → suppress rule: **blocked on tooling**.
-      The remote devices/rules commands are daemon (controller) actions; the
-      v0.0.12 daemon's `root_backend()` supports only qn90b/qn90f. There is no
-      archive-route persistent agent (`serve` is QN90F-only). Doing this needs
-      source-level work: an ArchiveRootBackend for the daemon + a persistent
-      archive-agent mode. Deferred until the core mods have burned in.
-- [~] `app.launch` action extension → same dependency as above.
+- [x] Controller daemon: archive-route backend landed on
+      `decogzz/samsung-tv-root` branch `archive-daemon` (commits `f5a33e6`,
+      `9240e9f`). Runs from source on Windows via `uv` + the v0.0.12 common
+      payloads. `post_root_commands` re-applies the 24 `/run` masks on every
+      successful acquisition (verified: `adagent-service` `masked-runtime` /
+      `inactive`, RAM available ~340 MB). The 6-minute watcher was stopped
+      and its Startup entry removed so it does not fight the daemon for SDB.
+      Retry delays are 30/60/90/120s — faster retries clog sdbd.
+- [x] `remote devices s90d` works on the live lease. Bluetooth remote is
+      kernel name `Smart Control` (`/dev/input/event3`). Free My TV app id
+      is `FreeMyTVio.FreeMyTV`.
+- [~] Home-key remap: observe one Home press (`remote events s90d` after
+      enabling the Smart Control device), then add
+      `{ device = "Smart Control", key = "<observed>", action = "app.launch",
+      app = "FreeMyTVio.FreeMyTV" }` and restart the daemon. Not flipped on
+      yet — need the exact key name from one observed press.

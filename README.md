@@ -18,13 +18,13 @@ Base tooling and reference:
   works on this S90D; uid 0 with full caps, verified 2026-10-24.
 - **Debloat applied** — 24 ads/telemetry/ACR/auto-update/voice services
   runtime-masked in `/run`; RAM available ~208 MB → ~375 MB.
-- **Watcher installed** on the Windows host (Startup loop) re-applies masks
-  automatically after each TV reboot. The stock daemon doesn't support the
-  archive route, so the watcher drives one-shot root sessions instead.
-- **Home-key remap: not done** — the remote grab/rules feature requires the
-  host controller daemon, which in v0.0.12 only supports QN90B/QN90F backends.
-  Needs source-level adaptation (new archive-route daemon backend + persistent
-  agent). Deferred; `docs/journal.md` has details.
+- **Daemon running** on the Windows host from
+  [decogzz/samsung-tv-root@archive-daemon](https://github.com/decogzz/samsung-tv-root/tree/archive-daemon):
+  holds a live uid-0 session, re-applies `/run` masks via `post_root_commands`
+  after every TV reboot / reacquire. Log: `C:\Users\decog\s90d-root\logs\daemon.log`.
+- **Home-key remap: ready, not flipped on.** Remote is `Smart Control`;
+  Free My TV id is `FreeMyTVio.FreeMyTV`. Observe one Home press, then add
+  the `app.launch` rule (see journal).
 
 See [docs/journal.md](docs/journal.md) for the running log and
 [docs/plan.md](docs/plan.md) for the confirmed plan.

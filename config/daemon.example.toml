@@ -1,0 +1,27 @@
+version = 1
+sdb = "C:/Users/decog/s90d-root/tools/tizen-sdb/sdb.exe"
+
+# S90D sdbd clogs if injections retry while a /dev/tcp callback is still
+# hanging (~2 min). Keep these slower than the default 1/2/5/10/20s.
+[retry]
+delays = [30.0, 60.0, 90.0, 120.0]
+
+[televisions.s90d]
+model = "archive"
+host = "192.168.50.36"
+root_on_presence = true
+disable_native_execution_policy = false
+# Re-applied after every successful root acquisition (TV reboot / new lease).
+# Volatile /run masks only — a reboot returns the TV to stock.
+post_root_commands = [
+  "for s in adagent-service.service contents-recognition-service.service contents-cognition-service-manager.service contents-ui-detector-service.service screen-analysis-service-manager.service abnormal_user_behavior.service org.tizen.remotepc.service slive-provider-daemon.service reporterCA.service scs-agent.service pushd.service register-device.service registertv-service.service registerav-service.service org.tizen.tv.tagpro-service-tv.service mirroring-recognition-manager.service aifw-msf-service.service swu-auto-upgrade.service muse-server.service org.tizen.aitech_daemon_service.service org.tizen.NPUManager.service com.samsung.tv.ai-interpreter-service.service com.samsung.tv.context-aware-agent.service com.samsung.tv.context-aware-service.service; do systemctl mask --runtime --now $s; done",
+]
+
+[televisions.s90d.remote]
+enabled = false
+devices = []
+rules = []
+
+[televisions.s90d.events]
+enabled = false
+hdmi_receiver = false
