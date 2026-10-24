@@ -10,9 +10,8 @@
 - Repo created under github.com/decogzz as the work home:
   `github.com/decogzz/s90d-root`, local clone `/root/projects/s90d-root`
   (remote `origin` via SSH alias `github.com-personal`), `main` pushed
-  (initial commit `145a69f`). Visibility: currently Public — flip to Private
-  pending user decision (note: flipping breaks HTTPS pulls; use the SSH
-  remote).
+  (initial commit `145a69f`). Visibility: Public — user decision, keep as-is
+  (HTTPS clone URLs keep working).
 
 ### Host setup (step 1)
 
