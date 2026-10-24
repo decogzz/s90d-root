@@ -7,7 +7,12 @@
   immediately — matches the documented restricted-shell behavior; the injected
   one-shot (`SVE-2025-50109`) is the only path.
 - Plan confirmed with the user. Guardrail: no persistent TV-side changes.
-- Repo created under github.com/decogzz as the work home.
+- Repo created under github.com/decogzz as the work home:
+  `github.com/decogzz/s90d-root`, local clone `/root/projects/s90d-root`
+  (remote `origin` via SSH alias `github.com-personal`), `main` pushed
+  (initial commit `145a69f`). Visibility: currently Public — flip to Private
+  pending user decision (note: flipping breaks HTTPS pulls; use the SSH
+  remote).
 
 ### Host setup (step 1)
 
