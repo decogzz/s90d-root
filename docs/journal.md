@@ -60,12 +60,12 @@
 - [x] Debloat applied via volatile `systemctl mask --runtime --now` (lives in
       `/run/systemd/system/`, zero persistent changes, all reversible by TV
       reboot). User-selected groups: ads/telemetry/ACR, auto-update, voice AI.
-      24 services masked: adagent, contents-recognition, contents-cognition-mgr,
-      contents-ui-detector, screen-analysis-mgr, abnormal_user_behavior,
-      remotepc, slive-provider-daemon, reporterCA, scs-agent, pushd,
-      register-device, registertv, registerav, tagpro, mirroring-recognition-mgr,
-      aifw-msf, swu-auto-upgrade, muse-server, aitech_daemon, NPUManager,
-      ai-interpreter, context-aware-agent, context-aware-service.
+      24 services masked. **The list is data-driven now:** the single source is
+      `config/debloat.services` (one service per line: `group | unit | what it
+      does`); `scripts/debloat.py sync` regenerates `config/daemon.example.toml`,
+      `tools/windows/run-mask-apply.bat` and the README table from it, and
+      `--win-config` refreshes the live Windows `config.toml`. To change what
+      gets disabled, edit the services file and re-run sync.
       Evidence: `evidence/2026-10-24-masks-applied.md`.
 - [x] RAM: available 208 MB → 375 MB (~167 MB freed) right after masking.
 - [x] Controller daemon: archive-route backend landed on

@@ -1,0 +1,42 @@
+# Debloated services — the single source of truth.
+#
+# One service per line:  group | unit | what it does
+# Lines starting with '#' are comments. Edit this file, then run:
+#     scripts/debloat.py sync
+# to regenerate every consumer (daemon config, mask bat, README table).
+#
+# All masks are volatile: systemctl mask --runtime --now puts them in
+# /run/systemd/system/, so a TV reboot returns everything to stock. The
+# host daemon re-applies this list after every successful root acquire
+# (post_root_commands). Groups mirror the user's choices at setup time:
+# ads-telemetry (ads / telemetry / ACR), auto-update, voice (voice AI).
+
+# --- ads-telemetry: ads, tracking and automatic content recognition ---
+ads-telemetry | adagent-service.service | ad agent daemon (ads backend)
+ads-telemetry | contents-recognition-service.service | ACR content analysis
+ads-telemetry | contents-cognition-service-manager.service | ACR content cognition manager
+ads-telemetry | contents-ui-detector-service.service | on-screen content UI detection
+ads-telemetry | screen-analysis-service-manager.service | screen content analysis
+ads-telemetry | abnormal_user_behavior.service | "abnormal user behavior" monitor
+ads-telemetry | org.tizen.remotepc.service | RemotePC client (remote support)
+ads-telemetry | slive-provider-daemon.service | TV Plus slive ad provider
+ads-telemetry | reporterCA.service | SCS reporter CA (telemetry upload)
+ads-telemetry | scs-agent.service | Samsung Collect Service agent (telemetry)
+ads-telemetry | pushd.service | marketing / push message daemon
+ads-telemetry | register-device.service | device registration telemetry
+ads-telemetry | registertv-service.service | TV registration telemetry
+ads-telemetry | registerav-service.service | AV registration telemetry
+ads-telemetry | org.tizen.tv.tagpro-service-tv.service | usage tagging (Tag Pro)
+ads-telemetry | mirroring-recognition-manager.service | screen mirroring recognition
+ads-telemetry | aifw-msf-service.service | AI framework MSF service
+
+# --- auto-update: firmware auto-upgrade ---
+auto-update | swu-auto-upgrade.service | firmware auto-upgrade daemon
+
+# --- voice: voice AI (Bixby and friends) ---
+voice | muse-server.service | voice assistant server (Bixby backend)
+voice | org.tizen.aitech_daemon_service.service | AI tech daemon (org.tizen)
+voice | org.tizen.NPUManager.service | NPU manager for on-device AI (org.tizen)
+voice | com.samsung.tv.ai-interpreter-service.service | AI interpreter service (com.samsung.tv)
+voice | com.samsung.tv.context-aware-agent.service | context-aware agent (com.samsung.tv)
+voice | com.samsung.tv.context-aware-service.service | context-aware service (com.samsung.tv)
