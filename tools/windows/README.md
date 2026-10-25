@@ -42,6 +42,14 @@ If an acquire fails, wait ~2 minutes before retrying: a hung TV-side
 admin rights. Do not run the old `install-watcher.cmd` at the same time —
 two clients fighting for SDB will clog the TV.
 
+`install-wake-watcher.cmd` installs the wake watcher (recommended): a
+2-minute loop that polls the TV's SDB port and tells the daemon to
+reacquire when the TV comes back. Covers both the daily case — standby
+kills the root lease + Home-key filter overnight — and rare cold boots
+(masks re-applied by `post_root_commands` in the same reacquire). It never
+touches SDB itself; the daemon stays the only SDB client. Stop it with
+`stop-wake-watcher.ps1`. Log: `logs\wake-watcher.log`.
+
 ## Home-key remap (next)
 
 1. Set `[televisions.s90d.remote] enabled = true` with

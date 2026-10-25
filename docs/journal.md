@@ -124,3 +124,24 @@
 - Forced `root acquire` at 08:31 (pid 7389, uid 0, full caps): all 24 masks
   verified `masked-runtime`/inactive|failed, RAM ~328 MB available, remote
   filter active on `wt61p807 rc device`, Home→FreeMyTV rule re-armed.
+
+### Wake watcher (self-healing host stack) — 2026-10-25
+
+- Built `tools/windows/s90d-root-wake-watcher.ps1` + `install-wake-watcher.cmd`
+  (+ `stop-wake-watcher.ps1`): a 2-minute loop that heals the whole host
+  stack — 1) daemon not answering → restart via `start-daemon.bat`;
+  2) TV SDB port closed → wait for wake; 3) port open but daemon not rooted
+  → `root acquire` (resets the daemon's dead retry state; acquire_now
+  verified in source to clear attempt/retry-index and return immediately
+  on a healthy lease). The daemon stays the only SDB client — the watcher
+  only polls TCP 26101 and talks to the daemon's local control API.
+- Gotchas fixed while testing: cmd.exe quoting mangled daemon-cmd args
+  (call the bat directly with `&` instead); UNC cwd from WSL broke the bats
+  (`Set-Location C:\Users\decog\s90d-root` at startup); old mask-watcher
+  Startup entry removed so only the wake watcher remains.
+- Deployed on the Windows host (pid 15136, Startup entry installed).
+  Verified steady state: daemon rooted + TV reachable → watcher correctly
+  silent across cycles; logs only on action.
+- This closes the standby gap: TV wake → port opens → acquire (~40 s) →
+  Home→Free My TV re-armed; masks only need re-applying after a true cold
+  boot (post_root_commands handles that in the same acquire).
