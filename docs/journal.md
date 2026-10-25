@@ -103,3 +103,24 @@
         only Home is remapped.
       - SSDP presence detection is flaky on this LAN; if the daemon sits in
         `idle` after start, `daemon-cmd.bat root acquire s90d` forces it.
+
+## 2026-10-25
+
+- **"Home key back to stock + root gone" — root cause: standby, NOT a cold
+  boot.** Kernel uptime 3.7 days (same boot since 2026-10-21 14:56); the
+  /run mask symlinks still carried yesterday's timestamps — /run was never
+  wiped. What died overnight: the daemon's root lease + remote filter,
+  because standby tears down the TV network and the SDB connection with it.
+  The daemon's 4 retries (20:02–20:07) all failed while the TV slept
+  ("SDB device not listed"), then it gave up for good; SSDP presence was
+  too flaky to wake it when the TV came back.
+- **Implication (design):** standby is the DAILY case. Masks survive standby;
+  only the root lease + Home remap must be reacquired every time the TV
+  wakes. Cold boot (rare: unplug / menu restart / long-press power / fw
+  update) additionally wipes /run masks. Both are covered by one mechanism:
+  reacquire on "SDB port just became reachable" — the port-poll watcher
+  (pending decision), since daemon retries assume a briefly-busy TV, not a
+  sleeping one, and SSDP is unreliable on this LAN.
+- Forced `root acquire` at 08:31 (pid 7389, uid 0, full caps): all 24 masks
+  verified `masked-runtime`/inactive|failed, RAM ~328 MB available, remote
+  filter active on `wt61p807 rc device`, Home→FreeMyTV rule re-armed.
