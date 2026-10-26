@@ -137,6 +137,9 @@ the real programs and the rows, and the next root acquire clears them again.
 | `ads-telemetry` | `user-presence.service` | detects whether someone is in front of the TV |
 | `ads-telemetry` | `wifi-presence.service` | senses presence over Wi-Fi |
 | `ads-telemetry` | `wifi-presence.path` | starts Wi-Fi presence when its path triggers |
+| `ads-telemetry` | `connman-logger.service` | logs the connection manager |
+| `ads-telemetry` | `devicetracker.service` | tracks devices the TV has seen |
+| `ads-telemetry` | `issue_report_agent.service` | sends problem reports; only devicetracker requires it |
 | `recommendations` | `ContentServiceManager.service` | Smart Hub content manager that starts the Discover feeds |
 | `recommendations` | `content-tiles-provider.service` | Discover tile rows, including Recommended for you |
 | `recommendations` | `content-grab-service.service` | downloads the Discover tile payloads |
@@ -160,6 +163,20 @@ the real programs and the rows, and the next root acquire clears them again.
 | `voice` | `com.samsung.tv.ai-interpreter-service.service` | AI interpreter service (com.samsung.tv) |
 | `voice` | `com.samsung.tv.context-aware-agent.service` | context-aware agent (com.samsung.tv) |
 | `voice` | `com.samsung.tv.context-aware-service.service` | context-aware service (com.samsung.tv) |
+| `optional` | `display-rotator.service` | panel rotation |
+| `optional` | `display-rotator.socket` | starts panel rotation when something connects |
+| `optional` | `usb-launcher-service.service` | popup when a USB stick is inserted |
+| `optional` | `ambient-ua-agent.service` | Ambient mode |
+| `optional` | `gamebar-service.service` | Game Bar overlay |
+| `optional` | `gamepad-service.service` | gamepads |
+| `optional` | `gamepad-driver.service` | loads the gamepad driver |
+| `optional` | `org.tizen.tv.gamepadservice.busname` | D-Bus activation for the gamepad service |
+| `optional` | `pvr-service.service` | recordings |
+| `optional` | `pvod-appfw.pvodservice.service` | premium video-on-demand apps |
+| `optional` | `QSysLink.service` | link to a Samsung soundbar |
+| `optional` | `sddp.service` | Control4-style device discovery on the LAN |
+| `optional` | `org.tizen.mbr-daemon.service` | multi-brand remote mode |
+| `optional` | `org.tizen.mbr-daemon.path` | starts multi-brand remote mode when its path triggers |
 <!-- debloat-table:end -->
 
 ## Services still running
@@ -168,9 +185,8 @@ Snapshot from the live TV on 2026-10-25: `systemctl list-units --type=service --
 The masked units in the table above are absent here. A reboot brings the masked
 ones back until the host daemon acquires again.
 
-Two of those leftovers stay running because another service requires them.
-`org.tizen.tv.factory-service` is required by `comss`, and the input switcher
-is ordered after it. `issue_report_agent` is required by `devicetracker`.
+`org.tizen.tv.factory-service` stays running because `comss` requires it, and
+the input switcher is ordered after it.
 
 ### Picture, sound, and inputs
 
@@ -182,15 +198,12 @@ is ordered after it. `issue_report_agent` is required by `devicetracker`.
 | `avocd-launcher.service` | AV output control |
 | `source-service.service` | Switches inputs (HDMI, tuner, apps) |
 | `hdmicec-service.service` | HDMI-CEC |
-| `display-rotator.service` | Panel rotation |
 | `screend.service` | Screen manager: panel on, off, and blanking |
 | `speaker-manager.service` | Speakers |
 | `pulseaudio.service` | Mixes audio |
 | `org.tizen.AISControlManager.service` | Audio control settings |
 | `media-server.service` | Plays media |
 | `mediacontroller.service` | Media playback control |
-| `pvr-service.service` | Recordings |
-| `QSysLink.service` | Link to a Samsung soundbar |
 | `color-pick.service` | Color picker used by the UI |
 | `focus-server.service` | Tracks which UI item has focus |
 
@@ -218,11 +231,6 @@ is ordered after it. `issue_report_agent` is required by `devicetracker`.
 | `global-notif-service.service` | System notifications |
 | `scim.service` | On-screen keyboard |
 | `alarm-server.service` | Timers and alarms |
-| `usb-launcher-service.service` | Reacts when a USB stick is inserted |
-| `pvod-appfw.pvodservice.service` | Premium video-on-demand apps |
-| `gamebar-service.service` | Game Bar overlay |
-| `gamepad-service.service` | Gamepads |
-| `ambient-ua-agent.service` | Ambient mode |
 | `product-operating.service` | Product operating mode (home or retail) |
 | `com.samsung.tv.qse-daemon.service` | Quick settings engine |
 
@@ -247,7 +255,6 @@ is ordered after it. `issue_report_agent` is required by `devicetracker`.
 | Unit | What it does |
 | --- | --- |
 | `connman.service` | Connection manager |
-| `connman-logger.service` | Logs the connection manager |
 | `net-config.service` | Network configuration |
 | `vd-net-config.service` | Network configuration for this display product |
 | `NW-Daemon-service.service` | Network daemon |
@@ -255,8 +262,6 @@ is ordered after it. `issue_report_agent` is required by `devicetracker`.
 | `wsm-service.service` | Wi-Fi state (`wifi_state_manager`) |
 | `wifi-monitor.service` | Wi-Fi hardware monitor |
 | `mdnsd.service` | mDNS discovery |
-| `sddp.service` | Device discovery on the LAN |
-| `devicetracker.service` | Tracks devices the TV has seen |
 | `org.tizen.device-detector-service.service` | Detects attached devices |
 
 ### Bluetooth
@@ -308,7 +313,6 @@ is ordered after it. `issue_report_agent` is required by `devicetracker`.
 | `stability-monitor.service` | Watches for crashes and hangs |
 | `sensord.service` | Sensors |
 | `sdbd.service` | Smart Development Bridge; this is how the host connects |
-| `org.tizen.mbr-daemon.service` | MBR-mode daemon; stays up even when that mode is off |
 | `ssc-service.service` | `ssc-service` binary; the unit file does not describe it further |
 | `ssdm-service.service` | `ssdm-service` binary; the unit file does not describe it further |
 
@@ -317,7 +321,6 @@ is ordered after it. `issue_report_agent` is required by `devicetracker`.
 | Unit | What it does |
 | --- | --- |
 | `org.tizen.tv.factory-service.service` | Factory service. `comss` requires it, and input switching is ordered after it |
-| `issue_report_agent.service` | Sends problem reports. `devicetracker` requires it |
 
 ## Hygiene
 

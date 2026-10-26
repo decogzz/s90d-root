@@ -207,7 +207,7 @@
   analysis, KPI metrics, the emergency log transmitter, Samsung Experience
   Service, user presence, Wi-Fi presence (and its path), web-app background
   update (and its path), factory test automation (and its path), and the
-  debug menu. 47 services masked.
+  debug menu. 47 services were masked.
 - Left two alone. `org.tizen.tv.factory-service` is required by `comss`, and
   the input switcher is ordered after it. `issue_report_agent` is required
   by `devicetracker`. Stopping either one would take the service that
@@ -219,3 +219,17 @@
   only start command: it downloads `sdb`, uv, and the v0.0.12 payloads
   on first run, starts the daemon, and acquires root. Those downloads
   stay gitignored.
+
+### Optional daemons — 2026-10-25
+
+- Masked the leftovers that nothing on the picture, sound, input, app, or
+  network path requires: connection logs, device tracking and the problem
+  report agent that only the tracker requires, panel rotation (and its
+  socket), the USB-insert popup, Ambient mode, Game Bar, gamepads (and the
+  driver and D-Bus name that start them), recordings, premium VOD, the
+  soundbar link, Control4-style discovery, and multi-brand remote mode
+  (and its path). 64 services masked.
+- Casting and screen sharing stay: AirPlay, Google Cast, Smart View, audio
+  share, AllShare, screen sharing, Wi-Fi Direct, the wireless camera, the
+  multi-screen framework, the peer viewer, and mDNS.
+- `org.tizen.tv.factory-service` still stays. `comss` requires it.

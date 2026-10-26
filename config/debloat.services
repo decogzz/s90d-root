@@ -37,6 +37,9 @@ ads-telemetry | sesd.service | Samsung Experience Service
 ads-telemetry | user-presence.service | detects whether someone is in front of the TV
 ads-telemetry | wifi-presence.service | senses presence over Wi-Fi
 ads-telemetry | wifi-presence.path | starts Wi-Fi presence when its path triggers
+ads-telemetry | connman-logger.service | logs the connection manager
+ads-telemetry | devicetracker.service | tracks devices the TV has seen
+ads-telemetry | issue_report_agent.service | sends problem reports; only devicetracker requires it
 
 # --- recommendations: Discover rails, including Recommended for you ---
 recommendations | ContentServiceManager.service | Smart Hub content manager that starts the Discover feeds
@@ -70,3 +73,19 @@ voice | aifw-data-manager.service | AI framework data store
 voice | com.samsung.tv.ai-interpreter-service.service | AI interpreter service (com.samsung.tv)
 voice | com.samsung.tv.context-aware-agent.service | context-aware agent (com.samsung.tv)
 voice | com.samsung.tv.context-aware-service.service | context-aware service (com.samsung.tv)
+
+# --- optional: features nothing else requires. Casting and screen sharing stay. ---
+optional | display-rotator.service | panel rotation
+optional | display-rotator.socket | starts panel rotation when something connects
+optional | usb-launcher-service.service | popup when a USB stick is inserted
+optional | ambient-ua-agent.service | Ambient mode
+optional | gamebar-service.service | Game Bar overlay
+optional | gamepad-service.service | gamepads
+optional | gamepad-driver.service | loads the gamepad driver
+optional | org.tizen.tv.gamepadservice.busname | D-Bus activation for the gamepad service
+optional | pvr-service.service | recordings
+optional | pvod-appfw.pvodservice.service | premium video-on-demand apps
+optional | QSysLink.service | link to a Samsung soundbar
+optional | sddp.service | Control4-style device discovery on the LAN
+optional | org.tizen.mbr-daemon.service | multi-brand remote mode
+optional | org.tizen.mbr-daemon.path | starts multi-brand remote mode when its path triggers
