@@ -175,8 +175,10 @@
   database. It reloads `tvplus_foryou` from
   `home.media` `coba.db` into its own UI database. Deleted that For You
   tree and the recent-section pointer, then reloaded Discover. The
-  Discover tab's first row is now only Now Playing. The Live tab still
-  creates an empty "Recommended for You" header on its own.
+  Discover tab's first row is now only Now Playing. Live's Recommended
+  for You rail is the `tvplus` section in that same `coba.db` (the section
+  id changes, so the delete is by the `tvplus` parent). Clearing it and
+  reloading the hub leaves Live on the guide.
 - Apps tab categories removed: Recommended (including Provided by
   Samsung), Editor's Choice, Health & Fitness, Lifestyle Apps, Gaming,
   Popular this week, What's New, Group Content, and Genre. Downloaded App

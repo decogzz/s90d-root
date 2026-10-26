@@ -34,16 +34,21 @@ See [docs/journal.md](docs/journal.md) for the running log and
 
 Taken 2026-10-25, around one `launch.bat`.
 
-The panel was on the ambient screensaver. The hub window underneath was
-Discover, with Recommended for You still drawn.
+Discover before, with Recommended for You under the tab.
 
-![Panel before launch.bat, ambient screensaver](docs/photos/2026-10-25/before-screen.png)
+![Discover before](docs/photos/2026-10-25/discover-before.png)
 
-![Hub before launch.bat, Discover with Recommended for You](docs/photos/2026-10-25/before-hub.png)
+Discover after. The welcome line and Now Playing stay.
 
-After `launch.bat`, Discover is on the panel: the welcome line and Now Playing.
+![Discover after](docs/photos/2026-10-25/discover-after.png)
 
-![Discover after launch.bat](docs/photos/2026-10-25/after-screen.png)
+Apps before, with Recommended, Provided by Samsung, Health & Fitness, and Lifestyle Apps.
+
+![Apps before](docs/photos/2026-10-25/apps-before.png)
+
+Apps after. Downloaded App and Settings stay.
+
+![Apps after](docs/photos/2026-10-25/apps-after.png)
 
 ## Guardrail (binding for all work in this repo)
 

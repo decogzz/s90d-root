@@ -47,13 +47,18 @@ HOLD = (
     "mountpoint -q $b || mount --bind /run/s90d/hold $b; done; "
     "pids=$(pidof contentservicemanager content-tiles-provider); "
     "if [ -n \"$pids\" ]; then kill -STOP $pids; fi; "
-    "echo \"delete from tiles where section_id in (select _id from sections where title like '%Recommended%' or title like '%Top Picks%' or title = 'Good afternoon'); "
-    "delete from sections where title like '%Recommended%' or title like '%Top Picks%' or title = 'Good afternoon');\" "
+    "echo \"delete from tiles where section_id in (select _id from sections where title like '%Recommended%' or title like '%Top Picks%' or title = 'Good afternoon' or title = 'COM_TV_SID_ON_NOW'); "
+    "delete from sections where title like '%Recommended%' or title like '%Top Picks%' or title = 'Good afternoon' or title = 'COM_TV_SID_ON_NOW');\" "
     "> /run/s90d/clear.sql; "
     "sqlite3 /home/owner/apps_rw/com.samsung.tv.contentservicemanager/data/.preview.db < /run/s90d/clear.sql; "
     "app_launcher -t com.samsung.tv.home.media; "
     "echo \"delete from preview where Parent in (select Id from preview where Parent = 'tvplus_foryou'); "
     "delete from preview where Parent = 'tvplus_foryou' or Id = 'tvplus_foryou'; "
+    # Live's Recommended for You rail is the tvplus section in this same
+    # database. The section id changes, so delete by the tvplus parent.
+    "delete from preview where Parent in (select Id from preview where Parent = 'tvplus'); "
+    "delete from preview where Parent = 'tvplus'; "
+    "update preview set Childs = '' where Id = 'tvplus'; "
     "delete from preview where Parent like 'RECOMMENDED-%' or Id like 'RECOMMENDED-%' or Parent = 'CategoryID_Content_RECOMMENDED' or Id = 'CategoryID_Content_RECOMMENDED' or Id = 'd/apps.tab.content@CategoryID_Content_RECOMMENDED' "
     "or Parent like 'EDITORSCHOICE-%' or Id like 'EDITORSCHOICE-%' or Parent = 'CategoryID_Content_EDITORSCHOICE' or Id = 'CategoryID_Content_EDITORSCHOICE' or Id = 'd/apps.tab.content@CategoryID_Content_EDITORSCHOICE' "
     "or Parent like 'HEALTHFITNESSWW-%' or Id like 'HEALTHFITNESSWW-%' or Parent = 'CategoryID_Content_HEALTHFITNESSWW' or Id = 'CategoryID_Content_HEALTHFITNESSWW' or Id = 'd/apps.tab.content@CategoryID_Content_HEALTHFITNESSWW' "
@@ -83,6 +88,21 @@ HOLD = (
     # Do not bind over CompAppsTab. Covering the native image stops the
     # Apps Settings click from running at all.
     "app_launcher -t com.samsung.tv.csfs; "
+    # coba is locked while csfs is running, so the delete above can miss.
+    # Run it again once csfs is stopped, then drop the rail from the UI tree.
+    "sqlite3 /home/owner/apps_rw/com.samsung.tv.home.media/data/coba.db < /run/s90d/clear-foryou.sql; "
+    # Live's first row is s/livetv.row@OnNow, and the only thing in it is the
+    # rail titled Recommended for You (preview section COM_TV_SID_ON_NOW).
+    # Leave the guide row and the bottom bar. UIDs change when the Hub
+    # rebuilds, so look them up.
+    "ui=/home/owner/apps_rw/com.samsung.tv.home.media/shared/trusted/sqlite.db; "
+    "epg=$(sqlite3 $ui \"select UID from TableEntity where componentID='s/epg.row'\"); "
+    "bot=$(sqlite3 $ui \"select UID from TableEntity where componentID='s/terra.bottom@d/live.tab'\"); "
+    "if [ -n \"$epg\" ] && [ -n \"$bot\" ]; then "
+    "sqlite3 $ui \"update TableEntity set childEntityList='${epg}_${bot}' where componentID='d/live.tab'\"; "
+    "fi; "
+    "sqlite3 $ui \"delete from TableEntity where componentID like 's/livetv.recommended_pig%' or componentID like 's/livetv.pig_layer@Recommended%'\"; "
+    "sqlite3 $ui \"update TableEntity set childEntityList='' where componentID='s/livetv.row@OnNow'\"; "
     "if [ -f /home/owner/.s90d/apps-watch.b64 ] && ! ps -A -o args | grep -q '[a]pps-watch.b64'; then "
     "setsid sh -c 'base64 -d /home/owner/.s90d/apps-watch.b64 | sh' >/tmp/apps-watch.log 2>&1 & "
     "fi; "
