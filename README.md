@@ -30,6 +30,21 @@ Base tooling and reference:
 See [docs/journal.md](docs/journal.md) for the running log and
 [docs/plan.md](docs/plan.md) for the confirmed plan.
 
+## Before and after
+
+Taken 2026-10-25, around one `launch.bat`.
+
+The panel was on the ambient screensaver. The hub window underneath was
+Discover, with Recommended for You still drawn.
+
+![Panel before launch.bat, ambient screensaver](docs/photos/2026-10-25/before-screen.png)
+
+![Hub before launch.bat, Discover with Recommended for You](docs/photos/2026-10-25/before-hub.png)
+
+After `launch.bat`, Discover is on the panel: the welcome line and Now Playing.
+
+![Discover after launch.bat](docs/photos/2026-10-25/after-screen.png)
+
 ## Guardrail (binding for all work in this repo)
 
 **No persistent TV-side changes.** A reboot returns the TV to fully stock.
