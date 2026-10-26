@@ -9,7 +9,8 @@
 # /run/systemd/system/, so a TV reboot returns everything to stock. The
 # host daemon re-applies this list after every successful root acquire
 # (post_root_commands). Groups mirror the user's choices at setup time:
-# ads-telemetry (ads / telemetry / ACR), auto-update, voice (voice AI).
+# ads-telemetry (ads / telemetry / ACR), recommendations (Discover rails),
+# auto-update, voice (voice AI).
 
 # --- ads-telemetry: ads, tracking and automatic content recognition ---
 ads-telemetry | adagent-service.service | ad agent daemon (ads backend)
@@ -29,14 +30,43 @@ ads-telemetry | registerav-service.service | AV registration telemetry
 ads-telemetry | org.tizen.tv.tagpro-service-tv.service | usage tagging (Tag Pro)
 ads-telemetry | mirroring-recognition-manager.service | screen mirroring recognition
 ads-telemetry | aifw-msf-service.service | AI framework MSF service
+ads-telemetry | canalysis-service.service | content analysis daemon
+ads-telemetry | org.tizen.tv.sp-kpi.service | performance metrics (KPI)
+ads-telemetry | emergency-log-transmitter.service | sends logs after a fault
+ads-telemetry | sesd.service | Samsung Experience Service
+ads-telemetry | user-presence.service | detects whether someone is in front of the TV
+ads-telemetry | wifi-presence.service | senses presence over Wi-Fi
+ads-telemetry | wifi-presence.path | starts Wi-Fi presence when its path triggers
+
+# --- recommendations: Discover rails, including Recommended for you ---
+recommendations | ContentServiceManager.service | Smart Hub content manager that starts the Discover feeds
+recommendations | content-tiles-provider.service | Discover tile rows, including Recommended for you
+recommendations | content-grab-service.service | downloads the Discover tile payloads
+recommendations | content-grab-service.path | starts the tile download when its path triggers
+recommendations | content-db-provider.service | local database the Discover rails read
+recommendations | csf-content-engine.service | Smart Hub content engine
+recommendations | com.samsung.tv.preview-updater.service | preview images on recommended tiles
+recommendations | pisa-service.service | personalization service that picks the recommendations
+recommendations | pisa-service.path | activates personalization when its path triggers
+recommendations | pisa-service.socket | socket activation for the personalization service
 
 # --- auto-update: firmware auto-upgrade ---
 auto-update | swu-auto-upgrade.service | firmware auto-upgrade daemon
+auto-update | was-background-update.service | background updates for web apps
+auto-update | was-background-update.path | starts that web-app update when its path triggers
+
+# --- factory: test automation and the debug menu ---
+# factory-service stays. comss requires it, and the input switcher is
+# ordered after it. Masking it would stop source switching on the next start.
+factory | org.tizen.tv.automation-service.service | factory test automation
+factory | org.tizen.tv.automation-service.path | starts factory automation when its path triggers
+factory | vddebugmenu.service | debug menu
 
 # --- voice: voice AI (Bixby and friends) ---
 voice | muse-server.service | voice assistant server (Bixby backend)
 voice | org.tizen.aitech_daemon_service.service | AI tech daemon (org.tizen)
 voice | org.tizen.NPUManager.service | NPU manager for on-device AI (org.tizen)
+voice | aifw-data-manager.service | AI framework data store
 voice | com.samsung.tv.ai-interpreter-service.service | AI interpreter service (com.samsung.tv)
 voice | com.samsung.tv.context-aware-agent.service | context-aware agent (com.samsung.tv)
 voice | com.samsung.tv.context-aware-service.service | context-aware service (com.samsung.tv)

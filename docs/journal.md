@@ -60,7 +60,7 @@
 - [x] Debloat applied via volatile `systemctl mask --runtime --now` (lives in
       `/run/systemd/system/`, zero persistent changes, all reversible by TV
       reboot). User-selected groups: ads/telemetry/ACR, auto-update, voice AI.
-      24 services masked. **The list is data-driven now:** the single source is
+      24 services were masked. **The list is data-driven now:** the single source is
       `config/debloat.services` (one service per line: `group | unit | what it
       does`); `scripts/debloat.py sync` regenerates `config/daemon.example.toml`,
       `tools/windows/run-mask-apply.bat` and the README table from it, and
@@ -145,3 +145,77 @@
 - This closes the standby gap: TV wake → port opens → acquire (~40 s) →
   Home→Free My TV re-armed; masks only need re-applying after a true cold
   boot (post_root_commands handles that in the same acquire).
+
+### Discover recommendations — 2026-10-25
+
+- New `recommendations` group in `config/debloat.services`. These are the
+  services that fill Smart Hub Discover, including Recommended for you:
+  ContentServiceManager, content-tiles-provider, content-grab-service (and
+  its path), content-db-provider, csf-content-engine, preview-updater, and
+  pisa-service (plus its path and socket, so personalization cannot restart
+  itself). 34 services were masked. Same runtime mask as the rest: gone until a
+  cold boot, reapplied by the daemon. The Hub shell itself is untouched.
+- Applied on the TV the same minute. content-db-provider, csf-content-engine,
+  and pisa-service stopped and stayed down. ContentServiceManager,
+  content-tiles-provider, and preview-updater are service apps with
+  `auto-restart="true"`, so the app manager (`amd`) brings those three
+  processes back even though their units are masked. They no longer have the
+  content database, content engine, or personalization service behind them.
+  Left them that way on purpose: `pkgcmd -D` would disable them across a
+  reboot, which breaks the volatile-only guardrail.
+- The rows were still on screen because they live in the tile database
+  (`.preview.db`, titles "Recommended for You",
+  "COM_TV_SID_EDEN_RECOMMENDED_FOR_YOU", "Today's Top Picks for You",
+  "Good afternoon") and the app manager had restarted the writers. Froze
+  contentservicemanager and content-tiles-provider, deleted those sections,
+  and reloaded Discover. `post_root_commands` now does the same freeze and
+  delete after each root acquire. Still volatile: a reboot brings the real
+  binaries and the rows back until the daemon acquires again.
+- The row was still on screen because Discover does not read that tile
+  database. It reloads `tvplus_foryou` from
+  `home.media` `coba.db` into its own UI database. Deleted that For You
+  tree and the recent-section pointer, then reloaded Discover. The
+  Discover tab's first row is now only Now Playing. The Live tab still
+  creates an empty "Recommended for You" header on its own.
+- Apps tab categories removed: Recommended (including Provided by
+  Samsung), Editor's Choice, Health & Fitness, Lifestyle Apps, Gaming,
+  Popular this week, What's New, Group Content, and Genre. Downloaded App
+  and Settings stay. Deleting them from the Hub database was not enough.
+  Opening the Apps tab runs `CompAppsTab`, which refills those rows from
+  `/home/owner/share/AppsTab/dataCache/DataCache.dat` and from the store
+  server. The first bind was invisible to the Hub: the root shell is a
+  different mount namespace, and the Hub kept reading the full cache.
+  The trimmed cache is now bind-mounted read-only in the TV's own
+  namespace, which is the one the Hub reads. A small
+  watcher deletes the rows again if a Hub start still rewrites them.
+  The rows on screen were kept by the Smart Hub shell (`csfs`), which
+  had already built the Apps tab in memory. The shell was restarted
+  after the trimmed Hub cache was in place. Reboot clears the bind and
+  the watcher; the next root acquire puts both back.
+- App Settings opened nothing because the click launches the Apps store
+  on its settings page, and a trimmed copy of the store's
+  `local-storage.dat` made that process exit before the page was drawn.
+  That bind is off. The store's own file stays. The Hub still reads the
+  trimmed Apps-tab cache, so the promo rows stay gone. The settings
+  click itself was only showing "Preparing... Please try again later."
+  because the Apps component is still a placeholder; the click now takes
+  the real launch path. Reboot clears that until the next root acquire.
+
+### More of the leftover services — 2026-10-25
+
+- Masked the leftovers that nothing else requires: AI data store, content
+  analysis, KPI metrics, the emergency log transmitter, Samsung Experience
+  Service, user presence, Wi-Fi presence (and its path), web-app background
+  update (and its path), factory test automation (and its path), and the
+  debug menu. 47 services masked.
+- Left two alone. `org.tizen.tv.factory-service` is required by `comss`, and
+  the input switcher is ordered after it. `issue_report_agent` is required
+  by `devicetracker`. Stopping either one would take the service that
+  depends on it down the next time that service starts.
+
+### One repo, one launch — 2026-10-25
+
+- The controller source now lives in `controller/`. `launch.bat` is the
+  only start command: it downloads `sdb`, uv, and the v0.0.12 payloads
+  on first run, starts the daemon, and acquires root. Those downloads
+  stay gitignored.

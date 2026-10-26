@@ -4,30 +4,34 @@ Runs on the Windows host that shares the TV's LAN (the TV's Developer Mode
 "Host PC IP" points at it). The TV→host TCP callbacks require a real Windows
 network stack; WSL2 NAT would block them.
 
-## Layout (`C:\Users\decog\s90d-root\`)
+## Layout
 
 | Path | Purpose |
 | --- | --- |
-| `config.toml` | daemon profile (`model = "archive"`, host, `post_root_commands`) |
-| `tools\samsung-tv-root-src\` | patched source (`decogzz/samsung-tv-root` branch `archive-daemon`) |
-| `tools\samsung-tv-root\samsung-tv-root-0.0.12-windows-x86_64\_internal\payloads\common\` | built payloads used by the source checkout |
-| `tools\tizen-sdb\` | Samsung `sdb.exe` (`sdb_4.2.36_windows-64.zip`) |
-| `tools\uv\uv.exe` | runs the patched source (downloads CPython 3.12 on first use) |
-| `tools\start-daemon.bat` | foreground `daemon run`, log appended to `logs\daemon.log` |
-| `tools\daemon-cmd.bat` | pass-through for `status`, `root acquire`, `execute`, `remote …` |
-| `tools\stop-daemon.ps1` | kill the daemon process tree |
-| `logs\daemon.log` | controller events (acquire / retry / rooted) |
+| `launch.bat` | the one command: download what is missing, start the daemon, take root |
+| `config.toml` | created on first launch from `config\daemon.example.toml` |
+| `controller\` | controller source |
+| `tools\payloads\common\` | payloads downloaded by `launch.bat` |
+| `tools\tizen-sdb\sdb.exe` | Samsung `sdb.exe`, downloaded by `launch.bat` |
+| `tools\uv\uv.exe` | runs the controller |
+| `tools\windows\daemon-cmd.bat` | `status`, `root acquire`, `execute`, `remote …` |
+| `logs\daemon.log` | controller events |
 
 `openssl` comes from Git for Windows (`C:\Program Files\Git\usr\bin`); the
 bats prepend it to PATH.
 
+A clean machine follows [From scratch](../../README.md#from-scratch).
+Run `launch.bat` from the repo root.
+
 ## Daily use
 
+`launch.bat` starts the daemon if it is not already running, and acquires
+root when the TV is not rooted. Other commands:
+
 ```
-C:\Users\decog\s90d-root\tools\daemon-cmd.bat status
-C:\Users\decog\s90d-root\tools\daemon-cmd.bat root acquire s90d --timeout 180
-C:\Users\decog\s90d-root\tools\daemon-cmd.bat execute s90d id
-C:\Users\decog\s90d-root\tools\daemon-cmd.bat remote devices s90d
+tools\windows\daemon-cmd.bat status
+tools\windows\daemon-cmd.bat execute s90d id
+tools\windows\daemon-cmd.bat remote devices s90d
 ```
 
 A TV cold boot drops `/run` masks and the root agent. The daemon sees the
@@ -37,25 +41,12 @@ If an acquire fails, wait ~2 minutes before retrying: a hung TV-side
 
 ## Install / update
 
-`install-daemon.cmd` copies the bats, writes
-`%APPDATA%\...\Startup\s90d-root-daemon.cmd`, and starts the daemon. No
-admin rights. Do not run the old `install-watcher.cmd` at the same time —
-two clients fighting for SDB will clog the TV.
+`launch.bat` is the start command. `install-daemon.cmd` and
+`install-wake-watcher.cmd` also add Windows login startup entries. This
+setup does not use those.
 
-`install-wake-watcher.cmd` installs the wake watcher (recommended): a
-2-minute loop that polls the TV's SDB port and tells the daemon to
-reacquire when the TV comes back. Covers both the daily case — standby
-kills the root lease + Home-key filter overnight — and rare cold boots
-(masks re-applied by `post_root_commands` in the same reacquire). It never
-touches SDB itself; the daemon stays the only SDB client. Stop it with
-`stop-wake-watcher.ps1`. Log: `logs\wake-watcher.log`.
+## Home key
 
-## Home-key remap (next)
-
-1. Set `[televisions.s90d.remote] enabled = true` with
-   `{ name = "Smart Control", transport = "bluetooth", model = "VG" }`.
-2. Restart the daemon, then `daemon-cmd.bat remote events s90d`.
-3. Press Home on the remote; note the `key` field.
-4. Add
-   `{ device = "Smart Control", key = "<that key>", action = "app.launch", app = "FreeMyTVio.FreeMyTV" }`
-   and restart again.
+The live rule is in the [From scratch](../../README.md#from-scratch) config:
+`XF86Home` on `wt61p807 rc device` launches `FreeMyTVio.FreeMyTV`. Restart
+the daemon after changing `config.toml`.

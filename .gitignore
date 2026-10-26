@@ -1,6 +1,10 @@
 # Local-only work files: TV network details, downloads, logs
 config/local/
+config.toml
 tools/downloads/
+tools/uv/
+tools/tizen-sdb/
+tools/payloads/
 out/
 *.log
 .venv/
@@ -8,6 +12,6 @@ __pycache__/
 # Never commit: Samsung binaries, firmware dumps, keys, release archives
 *.wgt
 *.ipk
-sdb*
+sdb.exe
 *.msd
 *.idsig
