@@ -103,6 +103,18 @@ HOLD = (
     "fi; "
     "sqlite3 $ui \"delete from TableEntity where componentID like 's/livetv.recommended_pig%' or componentID like 's/livetv.pig_layer@Recommended%'\"; "
     "sqlite3 $ui \"update TableEntity set childEntityList='' where componentID='s/livetv.row@OnNow'\"; "
+    # Games and Daily+ are left-rail categories. The sidebar rebuilds them
+    # on start while their packages are visible, and draws nothing once
+    # those packages are covered. The empty dir is on tmpfs, so a reboot
+    # brings the icons back until the next acquire.
+    "mkdir -p /run/s90d/empty; "
+    "for d in /opt/usr/apps/com.samsung.tv.lifeplus "
+    "/opt/usr/apps/com.samsung.tv.gamehome "
+    "/opt/usr/apps/com.samsung.tv.home.game; do "
+    "nsenter -t 1 -m mountpoint -q $d || nsenter -t 1 -m mount --bind /run/s90d/empty $d; "
+    "done; "
+    "app_launcher -t com.samsung.tv.home.sidebar; "
+    "app_launcher -s com.samsung.tv.home.sidebar; "
     "if [ -f /home/owner/.s90d/apps-watch.b64 ] && ! ps -A -o args | grep -q '[a]pps-watch.b64'; then "
     "setsid sh -c 'base64 -d /home/owner/.s90d/apps-watch.b64 | sh' >/tmp/apps-watch.log 2>&1 & "
     "fi; "

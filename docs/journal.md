@@ -179,6 +179,12 @@
   for You rail is the `tvplus` section in that same `coba.db` (the section
   id changes, so the delete is by the `tvplus` parent). Clearing it and
   reloading the hub leaves Live on the guide.
+- Games and Daily+ are left-rail categories. The sidebar rebuilds them on
+  start while `com.samsung.tv.lifeplus`, `com.samsung.tv.gamehome`, and
+  `com.samsung.tv.home.game` are visible. The one-shot covers those three
+  with an empty directory and restarts the sidebar, so the rail keeps
+  account, Search, Home, Settings, and Privacy Choices. A reboot drops
+  the covers.
 - Apps tab categories removed: Recommended (including Provided by
   Samsung), Editor's Choice, Health & Fitness, Lifestyle Apps, Gaming,
   Popular this week, What's New, Group Content, and Genre. Downloaded App
