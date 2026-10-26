@@ -7,6 +7,7 @@ if not exist "C:\Program Files\Git\usr\bin\openssl.exe" (
   echo Install Git for Windows first. The TV calls back to this PC through openssl.
   exit /b 1
 )
+set "PATH=C:\Program Files\Git\usr\bin;%PATH%"
 
 if not exist "%ROOT%\tools\uv\uv.exe" call :fetch_uv
 if errorlevel 1 exit /b 1
