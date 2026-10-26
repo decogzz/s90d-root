@@ -29,32 +29,17 @@ echo Connecting to the TV at %TV_IP%:26101
 "%ROOT%\tools\tizen-sdb\sdb.exe" connect %TV_IP%:26101
 if errorlevel 1 goto connect_fail
 
-powershell -NoProfile -Command "if (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*samsung-tv-root*daemon run*' }) { exit 0 } else { exit 1 }"
-if errorlevel 1 (
-  echo Starting the daemon. The first run downloads Python. Log: %ROOT%\logs\daemon.log
-  start "s90d-root" /min "%ROOT%\tools\windows\start-daemon.bat"
-)
+echo Stopping a leftover daemon, if one is running.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\windows\stop-daemon.ps1"
 
-echo Waiting for the daemon.
-set /a TRIES=0
-:wait
-set /a TRIES+=1
-if %TRIES% GTR 90 goto wait_fail
-call "%ROOT%\tools\windows\daemon-cmd.bat" status > "%TEMP%\s90d-status.txt" 2>&1
-if not errorlevel 1 goto ready
-timeout /t 2 /nobreak >nul
-goto wait
-
-:ready
-findstr /c:"rooted" "%TEMP%\s90d-status.txt" >nul
-if not errorlevel 1 goto show_id
-echo Acquiring root. This can take a couple of minutes.
-call "%ROOT%\tools\windows\daemon-cmd.bat" root acquire s90d --timeout 180
+echo Applying the debloat list. This can take a couple of minutes.
+set "TV_IP=%TV_IP%"
+set "SDB=%ROOT%\tools\tizen-sdb\sdb.exe"
+set "SAMSUNG_TV_ROOT_COMMON_PAYLOAD_DIRECTORY=%ROOT%\tools\payloads\common"
+cd /d "%ROOT%\controller"
+"%ROOT%\tools\uv\uv.exe" run python "%ROOT%\scripts\apply-once.py"
 if errorlevel 1 goto acquire_fail
-
-:show_id
-call "%ROOT%\tools\windows\daemon-cmd.bat" execute s90d id
-exit /b %ERRORLEVEL%
+exit /b 0
 
 :fetch_uv
 echo Downloading uv.
@@ -92,10 +77,6 @@ exit /b 0
 echo.
 echo sdb could not connect. On the TV: Smart Hub, Apps, 12345.
 echo Turn Developer Mode on, set Host PC IP to this PC, and let the TV reboot.
-exit /b 1
-
-:wait_fail
-echo The daemon did not come up. See %ROOT%\logs\daemon.log
 exit /b 1
 
 :acquire_fail

@@ -85,7 +85,9 @@ HOLD = (
     "app_launcher -t com.samsung.tv.csfs; "
     "if [ -f /home/owner/.s90d/apps-watch.b64 ] && ! ps -A -o args | grep -q '[a]pps-watch.b64'; then "
     "setsid sh -c 'base64 -d /home/owner/.s90d/apps-watch.b64 | sh' >/tmp/apps-watch.log 2>&1 & "
-    "fi"
+    "fi; "
+    "app_launcher -s com.samsung.tv.home.media; "
+    "app_launcher -s com.samsung.tv.csfs"
 )
 
 def parse(path=SERVICES):
@@ -140,20 +142,16 @@ model = "archive"
 host = "192.168.50.36"  # example; real value lives in the gitignored config/
 root_on_presence = true
 disable_native_execution_policy = false
-# Re-applied after every successful root acquisition (TV reboot / new lease).
+# Applied once by launch.bat (scripts/apply-once.py). Not a resident daemon.
 # Volatile /run masks only — a reboot returns the TV to stock.
 # The unit list comes from config/debloat.services.
 # The second command freezes the Discover tile apps and deletes Recommended.
 {post_root}
 
 [televisions.s90d.remote]
-enabled = true
-devices = [
-  {{ name = "wt61p807 rc device", transport = "bluetooth", model = "VG" }},
-]
-rules = [
-  {{ device = "wt61p807 rc device", key = "XF86Home", action = "app.launch", app = "FreeMyTVio.FreeMyTV" }},
-]
+enabled = false
+devices = []
+rules = []
 
 [televisions.s90d.events]
 enabled = false

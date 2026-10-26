@@ -8,7 +8,7 @@ network stack; WSL2 NAT would block them.
 
 | Path | Purpose |
 | --- | --- |
-| `launch.bat` | the one command: download what is missing, start the daemon, take root |
+| `launch.bat` | the one command: download what is missing, apply the debloat, exit |
 | `config.toml` | created on first launch from `config\daemon.example.toml` |
 | `controller\` | controller source |
 | `tools\payloads\common\` | payloads downloaded by `launch.bat` |
@@ -25,19 +25,11 @@ Run `launch.bat` from the repo root.
 
 ## Daily use
 
-`launch.bat` starts the daemon if it is not already running, and acquires
-root when the TV is not rooted. Other commands:
+`launch.bat` applies the debloat once and exits. It stops a leftover daemon
+first. The Home key opens Smart Hub.
 
-```
-tools\windows\daemon-cmd.bat status
-tools\windows\daemon-cmd.bat execute s90d id
-tools\windows\daemon-cmd.bat remote devices s90d
-```
-
-A TV cold boot drops `/run` masks and the root agent. The daemon sees the
-new boot (SSDP, or a manual `root acquire`) and re-runs `post_root_commands`.
-If an acquire fails, wait ~2 minutes before retrying: a hung TV-side
-`/dev/tcp` clogs sdbd.
+A TV cold boot drops the `/run` masks. Run `launch.bat` again. If an acquire
+fails, wait ~2 minutes before retrying: a hung TV-side `/dev/tcp` clogs sdbd.
 
 ## Install / update
 
@@ -47,6 +39,4 @@ setup does not use those.
 
 ## Home key
 
-The live rule is in the [From scratch](../../README.md#from-scratch) config:
-`XF86Home` on `wt61p807 rc device` launches `FreeMyTVio.FreeMyTV`. Restart
-the daemon after changing `config.toml`.
+Not remapped. Home opens Smart Hub.

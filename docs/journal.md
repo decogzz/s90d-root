@@ -233,3 +233,11 @@
   share, AllShare, screen sharing, Wi-Fi Direct, the wireless camera, the
   multi-screen framework, the peer viewer, and mDNS.
 - `org.tizen.tv.factory-service` still stays. `comss` requires it.
+
+### One shot, no Home remap — 2026-10-25
+
+- The Home key is not remapped. It opens Smart Hub. The Windows daemon that
+  was holding that rule is stopped, and the config no longer has the rule.
+- `launch.bat` takes root, applies the debloat list, and exits. It does not
+  leave a process running on Windows. A TV cold boot clears the masks;
+  run `launch.bat` again after one.

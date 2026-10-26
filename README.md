@@ -1,8 +1,7 @@
 # S90D root work
 
 Work files for rooting and debloating a Samsung QN77S90DAEXZX (S90D family,
-Tizen platform 9.0) over network SDB, and remapping the remote's Home key to
-launch [Free My TV](https://github.com/decogzz/free-my-tv) (my fork).
+Tizen platform 9.0) over network SDB.
 
 A clean Windows machine starts at [From scratch](#from-scratch).
 
@@ -24,15 +23,9 @@ Base tooling and reference:
   (single source) — see the [Debloat list](#debloat-list) table below.
   Everything systemd still reports as running is in
   [Services still running](#services-still-running).
-- **Daemon running** from [`controller/`](controller) (the
-  [archive-daemon](https://github.com/decogzz/samsung-tv-root/tree/archive-daemon)
-  controller, vendored here). `launch.bat` starts it. It holds a live uid-0
-  session and re-applies `/run` masks via `post_root_commands` after every
-  TV reboot / reacquire. Log: `logs\daemon.log`.
-- **Home-key remap: DONE, verified end to end.** The remote's Home key
-  (`XF86Home` on the `wt61p807 rc device` input node) launches
-  `FreeMyTVio.FreeMyTV`; all other keys forward natively. The rule lives in
-  the host daemon config, nothing on the TV (see journal).
+- **Debloat is a one-shot.** `launch.bat` takes root, applies the list, prints
+  `id`, and exits. Nothing keeps running on Windows. The Home key is not
+  remapped; it opens Smart Hub.
 
 See [docs/journal.md](docs/journal.md) for the running log and
 [docs/plan.md](docs/plan.md) for the confirmed plan.
@@ -43,8 +36,8 @@ See [docs/journal.md](docs/journal.md) for the running log and
 
 Forbidden: raw block writes, `profile.d`/boot-hook patching, TV-side boot
 services, package uninstalls, persistent UEP disables, firmware modification.
-All debloat masks live in `/run`; remote remaps live on the host PC; both are
-re-applied by the host controller daemon, never stored on the TV.
+All debloat masks live in `/run`. `launch.bat` applies them once per cold
+boot and does not leave a process running on the PC.
 
 Only persistent artifacts allowed: ordinary user-level items (Developer Mode
 setting, installed apps, normal TV settings).
@@ -64,26 +57,18 @@ launch.bat
 ```
 
 `launch.bat` downloads `sdb`, uv, and the controller payloads on first run,
-starts the daemon, and takes root. It prints `id`. That should show
-`uid=0`. The debloat list and the Home key are applied by that acquire.
-The log is `logs\daemon.log`.
-
-Free My TV has to already be installed for Home to open it. The app id is
-`FreeMyTVio.FreeMyTV` ([decogzz/free-my-tv](https://github.com/decogzz/free-my-tv)).
+takes root, applies the debloat list, prints `id`, and exits. `id` should
+show `uid=0`. Nothing stays running on Windows. If an older daemon is still
+open, `launch.bat` stops it first so the Home key is left on Smart Hub.
 
 The controller source is in [`controller/`](controller). `config.toml` is
 created from [`config/daemon.example.toml`](config/daemon.example.toml) the
-first time, with this TV's address and the Home rule already filled in.
+first time, with this TV's address filled in.
 
 If Windows Firewall asks, allow the controller on private networks. If root
 does not come up, wait about two minutes and run `launch.bat` again.
 
-A cold boot of the TV drops root and the masks. Run `launch.bat` again.
-Standby does not. To stop the daemon:
-
-```
-powershell -ExecutionPolicy Bypass -File tools\windows\stop-daemon.ps1
-```
+A cold boot of the TV drops the masks. Run `launch.bat` again. Standby does not.
 
 ## Debloat list
 
@@ -104,8 +89,8 @@ The `sync` regenerates `config/daemon.example.toml` (`post_root_commands`),
 `tools/windows/run-mask-apply.bat` (standalone mask session) and the table
 below — never edit those by hand. Every consumer runs the same mask loop:
 `systemctl mask --runtime --now` per unit — volatile `/run` masks only, so a
-TV reboot returns everything to stock, and the host daemon re-applies the
-list after each successful root acquire. Two Discover tile apps restart
+TV reboot returns everything to stock. Run `launch.bat` again to apply the
+list. Two Discover tile apps restart
 themselves anyway; the same reapply freezes those processes and deletes the
 Recommended rows from their database. That is volatile too: a reboot restores
 the real programs and the rows, and the next root acquire clears them again.
@@ -183,7 +168,7 @@ the real programs and the rows, and the next root acquire clears them again.
 
 Snapshot from the live TV on 2026-10-25: `systemctl list-units --type=service --state=running`.
 The masked units in the table above are absent here. A reboot brings the masked
-ones back until the host daemon acquires again.
+ones back until `launch.bat` is run again.
 
 `org.tizen.tv.factory-service` stays running because `comss` requires it, and
 the input switcher is ordered after it.
